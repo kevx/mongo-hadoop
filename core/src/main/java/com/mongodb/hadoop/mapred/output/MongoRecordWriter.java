@@ -98,7 +98,10 @@ public class MongoRecordWriter<K, V> implements RecordWriter<K, V> {
 
         try {
             DBCollection dbCollection = getDbCollectionByRoundRobin();
+            Thread.sleep(MongoConfigUtil.getWriteInterval(configuration));
             dbCollection.save(o);
+        } catch (final InterruptedException ie) {
+            return;
         } catch (final MongoException e) {
             throw new IOException("can't write to mongo", e);
         }
