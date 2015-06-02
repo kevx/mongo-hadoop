@@ -324,6 +324,19 @@ public final class MongoConfigUtil {
         }
     }
     
+    public static long getWriteInterval(final Configuration conf) {
+        final String wi = conf.get(WRITE_INTERVAL);
+        if (wi == null) {
+            return 0L;
+        }
+        try {
+            long l = Long.parseLong(wi);
+            return l;
+        } catch (Exception e) {
+            return 0L;
+        }
+    }
+
     public static MongoClientURI getMongoClientURI(final Configuration conf, final String key) {
         final String raw = conf.get(key);
         return raw != null && !raw.trim().isEmpty() ? new MongoClientURI(raw) : null;
