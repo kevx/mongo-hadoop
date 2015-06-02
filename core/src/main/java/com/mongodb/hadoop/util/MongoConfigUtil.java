@@ -75,6 +75,7 @@ public final class MongoConfigUtil {
 
     public static final String JOB_OUTPUT_KEY = "mongo.job.output.key";
     public static final String JOB_OUTPUT_VALUE = "mongo.job.output.value";
+    public static final String WRITE_INTERVAL = "mongo.write.interval";
 
     public static final String INPUT_URI = "mongo.input.uri";
     public static final String INPUT_MONGOS_HOSTS = "mongo.input.mongos_hosts";

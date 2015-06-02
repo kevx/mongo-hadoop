@@ -48,6 +48,8 @@ public class MongoStorageHandler extends DefaultStorageHandler {
     public static final String MONGO_URI = "mongo.uri";
     // get location of where meta-data is stored about the mongo collection
     public static final String TABLE_LOCATION = "location";
+    // sleep interval between two commits
+    public static final String WRITE_INTERVAL = "write.interval";
 
     @Override
     public Class<? extends InputFormat<?, ?>> getInputFormatClass() {
@@ -139,33 +141,37 @@ public class MongoStorageHandler extends DefaultStorageHandler {
         // HiveMongoInputFormat, BSONSerDe.
         if (from.containsKey(serdeConstants.LIST_COLUMNS)) {
             to.put(serdeConstants.LIST_COLUMNS,
-                    (String)from.get(serdeConstants.LIST_COLUMNS));
+                    (String) from.get(serdeConstants.LIST_COLUMNS));
         }
         if (from.containsKey(serdeConstants.LIST_COLUMN_TYPES)) {
             to.put(serdeConstants.LIST_COLUMN_TYPES,
-                    (String)from.get(serdeConstants.LIST_COLUMN_TYPES));
+                    (String) from.get(serdeConstants.LIST_COLUMN_TYPES));
         }
         if (from.containsKey(MONGO_COLS)) {
-            to.put(MONGO_COLS, (String)from.get(MONGO_COLS));
+            to.put(MONGO_COLS, (String) from.get(MONGO_COLS));
         }
         if (from.containsKey(TABLE_LOCATION)) {
-            to.put(TABLE_LOCATION, (String)from.get(TABLE_LOCATION));
+            to.put(TABLE_LOCATION, (String) from.get(TABLE_LOCATION));
         }
 
         // Copy general connector properties, such as ones defined in
         // MongoConfigUtil. These are all prefixed with "mongo.".
         for (Entry<Object, Object> entry : from.entrySet()) {
-            String key = (String)entry.getKey();
+            String key = (String) entry.getKey();
             if (key.startsWith("mongo.")) {
-                to.put(key, (String)from.get(key));
+                to.put(key, (String) from.get(key));
             }
         }
 
         // Update the keys for MONGO_URI per MongoConfigUtil.
         if (from.containsKey(MONGO_URI)) {
-            String mongoURIStr = (String)from.get(MONGO_URI);
+            String mongoURIStr = (String) from.get(MONGO_URI);
             to.put(MongoConfigUtil.INPUT_URI, mongoURIStr);
             to.put(MongoConfigUtil.OUTPUT_URI, mongoURIStr);
+        }
+        if (from.containsKey(WRITE_INTERVAL)) {
+            String writeInterval = (String) from.get(WRITE_INTERVAL);
+            to.put(MongoConfigUtil.WRITE_INTERVAL, writeInterval);
         }
     }
 }
