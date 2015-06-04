@@ -48,9 +48,9 @@ public class MongoStorageHandler extends DefaultStorageHandler {
     public static final String MONGO_URI = "mongo.uri";
     // get location of where meta-data is stored about the mongo collection
     public static final String TABLE_LOCATION = "location";
-    // sleep interval between two commits
-    public static final String WRITE_INTERVAL = "write.interval";
-
+    // data is droppable even when created as external table
+    public static final String DROPPABLE = "droppable";
+    
     @Override
     public Class<? extends InputFormat<?, ?>> getInputFormatClass() {
         return HiveMongoInputFormat.class;
@@ -99,9 +99,12 @@ public class MongoStorageHandler extends DefaultStorageHandler {
         @Override
         public void commitDropTable(final Table tbl, final boolean deleteData) throws MetaException {
             boolean isExternal = MetaStoreUtils.isExternalTable(tbl);
-
-            if (deleteData && !isExternal) {
-                Map<String, String> tblParams = tbl.getParameters();
+            Map<String, String> tblParams = tbl.getParameters();
+            boolean droppable = false;
+            if (tblParams.containsKey(DROPPABLE)) {
+                droppable = Boolean.valueOf(tblParams.get(DROPPABLE));
+            }
+            if (deleteData && (!isExternal || droppable)) {
                 if (tblParams.containsKey(MONGO_URI)) {
                     String mongoURIStr = tblParams.get(MONGO_URI);
                     DBCollection coll = MongoConfigUtil.getCollection(new MongoClientURI(mongoURIStr));
@@ -168,10 +171,6 @@ public class MongoStorageHandler extends DefaultStorageHandler {
             String mongoURIStr = (String) from.get(MONGO_URI);
             to.put(MongoConfigUtil.INPUT_URI, mongoURIStr);
             to.put(MongoConfigUtil.OUTPUT_URI, mongoURIStr);
-        }
-        if (from.containsKey(WRITE_INTERVAL)) {
-            String writeInterval = (String) from.get(WRITE_INTERVAL);
-            to.put(MongoConfigUtil.WRITE_INTERVAL, writeInterval);
         }
     }
 }
