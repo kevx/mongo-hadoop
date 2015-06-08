@@ -300,8 +300,11 @@ public final class MongoConfigUtil {
         final String raw = conf.get(key);
         if (raw != null && !raw.trim().isEmpty()) {
             List<MongoClientURI> result = new LinkedList<MongoClientURI>();
-            String[] split = StringUtils.split(raw, ", ");
+            String[] split = StringUtils.splitByWholeSeparator(raw, ", ");
             for (String mongoURI : split) {
+                if (!mongoURI.startsWith("mongodb://")) {
+                    throw new RuntimeException(raw);
+                }
                 result.add(new MongoClientURI(mongoURI));
             }
             return result;
